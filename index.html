@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Produtos e Marketplace - Completo</title>
+<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+<style>
+body { font-family: Arial; margin: 20px; background:#f5f5f5; }
+input[type="text"], input[type="file"], input[type="number"] { padding:5px; margin:5px 0; }
+ul { list-style: none; padding: 0; max-width:800px; border:1px solid #ccc; background:white; }
+li { padding:5px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; }
+li.active { background:#d0e7ff; }
+table { border-collapse: collapse; margin-top: 20px; width:100%; max-width:1000px; background:white; table-layout:auto; }
+th, td { border:1px solid #ccc; padding:5px; text-align:left; }
+td.editable, td.editable-market { background:#f9f9f9; cursor:pointer; }
+input.inline-input { width:60px; }
+button { margin-left:5px; padding:5px 10px; }
+.bold { font-weight:bold; }
+.gray-bg { background:#e6e6e6; }
+</style>
+</head>
+<body>
+
+<h2>Carregar Planilha e Buscar Produto</h2>
+<input type="file" id="fileInput" accept=".xlsx,.xls">
+<input type="text" id="busca" placeholder="Digite código ou nome do produto" disabled autocomplete="off">
+<ul id="resultado"></ul>
+<button id="limparBtn">Limpar Todos</button>
+
+<h3>Produtos Selecionados</h3>
+<table id="tabelaSelecionados">
+<thead>
+<tr>
+<th>Código</th>
+<th>Nome</th>
+<th>Peso (g)</th>
+<th>Quantidade</th>
+<th>Custo (unit.)</th>
+<th>Preço (unit.)</th>
+<th>Subtotal</th>
+<th>Ações</th>
+</tr>
+</thead>
+<tbody></tbody>
+<tfoot>
+<tr id="totais">
+<td colspan="2">Totais</td>
+<td id="totalPeso">0 g</td>
+<td id="totalQtd">0</td>
+<td id="totalCusto">0</td>
+<td id="totalPreco">0</td>
+<td id="totalSubtotal">0</td>
+<td></td>
+</tr>
+</tfoot>
+</table>
+
+<h3>Marketplace</h3>
+<table id="tabelaMarketplace">
+<thead>
+<tr>
+<th>Dados</th>
+<th>Shopee</th>
+<th>Shopee Flex</th>
+<th>Mercado Livre</th>
+<th>Mercado Livre Flex</th>
+<th>Shein</th>
+</tr>
+</thead>
+<tbody>
+<tr data-key="%">
+<td>%</td>
+<td class="editable-market" data-col="shopee">20</td>
+<td class="editable-market" data-col="shopeeFlex">20</td>
+<td class="editable-market" data-col="mercadoLivre">12</td>
+<td class="editable-market" data-col="mercadoLivreFlex">12</td>
+<td class="editable-market" data-col="shein">16</td>
+</tr>
+<tr data-key="precoVenda">
+  <td>Preço de Venda</td>
+  <td class="editable-market" data-col="preco-shopee"></td>
+  <td class="editable-market" data-col="preco-shopeeFlex"></td>
+  <td class="editable-market" data-col="preco-mercadoLivre"></td>
+  <td class="editable-market" data-col="preco-mercadoLivreFlex"></td>
+  <td class="editable-market" data-col="preco-shein"></td>
+</tr>
+<tr data-key="comissao"><td>Comissão</td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr data-key="taxaFixa"><td>Taxa Fixa</td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr data-key="tarifaVenda"><td>Tarifa de Venda (Comissão+Taxa Fixa)</td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr data-key="frete">
+  <td>Frete (Custo ou Reembolso MKP)</td>
+  <td></td>
+  <td>8.00</td>
+  <td class="editable-market" data-col="frete-mercadoLivre">0</td>
+  <td class="editable-market" data-col="frete-mercadoLivreFlex">11.00</td>
+  <td></td>
+</tr>
+<tr data-key="restou"><td>Restou</td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr data-key="custoProduto"><td>Custo Produto</td><td></td><td></td><td></td><td></td><td></td></tr>
+
+<tr data-key="freteAdicional">
+  <td>Frete Adicional</td>
+  <td class="editable-market">0</td>
+  <td class="editable-market">8.00</td>
+  <td class="editable-market">0</td>
+  <td class="editable-market">12.90</td>
+  <td class="editable-market">0</td>
+</tr>
+<tr data-key="embalagem">
+  <td>Embalagem</td>
+  <td class="editable-market">0</td>
+  <td class="editable-market">0</td>
+  <td class="editable-market">0</td>
+  <td class="editable-market">0</td>
+  <td class="editable-market">0</td>
+</tr>
+
+<tr data-key="lucroLiquido"><td>Lucro Liquido</td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr data-key="imposto">
+  <td id="labelImposto">Imposto (0.00%)</td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td class="editable-market" data-col="imposto-mercadoLivreFlex"></td>
+  <td></td>
+</tr>
+<tr data-key="lucroLiquidoNF"><td>Lucro Liquido NF</td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr data-key="margemLucro"><td>Margem de Lucro</td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr data-key="margemIdeal"><td>Margem Ideal</td><td></td><td></td><td></td><td></td><td></td></tr>
+</tbody>
+</table>
+
+<script>
+let produtos=[], selecionados=[], filtered=[], currentIndex=-1;
+let impostoPercentual=0;
+
+document.addEventListener('DOMContentLoaded', () => {
+    const tbody = document.querySelector('#tabelaMarketplace tbody');
+    const linhasParaFormatar = ['restou', 'lucroLiquidoNF'];
+    linhasParaFormatar.forEach(key => {
+        const tr = tbody.querySelector(`tr[data-key="${key}"]`);
+        if(tr) tr.classList.add('bold', 'gray-bg');
+    });
+});
+
+function normalize(str){
+    return str ? str.toString().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase() : "";
+}
+
+document.getElementById('fileInput').addEventListener('change',(e)=>{
+    const file=e.target.files[0];
+    if(!file) return;
+    const reader=new FileReader();
+    reader.onload=(evt)=>{
+        const data=evt.target.result;
+        const workbook=XLSX.read(data,{type:'binary'});
+        
+        const sheetImposto=workbook.Sheets['Imposto'];
+        if(sheetImposto && sheetImposto['B13']){
+            let val=sheetImposto['B13'].v.toString().replace(',','.');
+            impostoPercentual=parseFloat(val)||0;
+        }
+
+        const firstSheet=workbook.SheetNames[0];
+        const sheetData=XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
+        produtos=sheetData.map(row=>{
+            const normalizedRow={};
+            for(let key in row) normalizedRow[normalize(key)]=row[key];
+            
+            let pesoVal = 0;
+            const pesoKey = Object.keys(normalizedRow).find(k => k.includes('peso') || k.includes('grama'));
+            if(pesoKey !== undefined) {
+                pesoVal = parseFloat(normalizedRow[pesoKey]) || 0;
+            } else {
+                const values = Object.values(row);
+                if(values.length >= 5) {
+                    pesoVal = parseFloat(values[4]) || 0;
+                }
+            }
+
+            return {
+                codigo: normalizedRow['codigo'] ? normalizedRow['codigo'].toString().trim() : '',
+                nome: normalizedRow['nome'],
+                custo: parseFloat(normalizedRow['custo'])||0,
+                preco: parseFloat(normalizedRow['preco'])||0,
+                peso: pesoVal
+            };
+        }).filter(p=>p.codigo && p.nome);
+        if(produtos.length>0) document.getElementById('busca').disabled=false;
+
+        document.getElementById('busca').focus();
+        atualizarTabela();
+    };
+    reader.readAsBinaryString(file);
+});
+
+function atualizarTabela(){
+    const tbody=document.querySelector('#tabelaSelecionados tbody');
+    tbody.innerHTML='';
+    let totalQtd=0, totalCusto=0, totalPreco=0, totalSubtotal=0, totalPeso=0;
+    
+    selecionados.forEach((item,idx)=>{
+        const subtotal=item.quantidade*item.preco;
+        const pesoTotalItem = item.quantidade * (item.peso || 0);
+        const tr=document.createElement('tr');
+        tr.innerHTML=`
+            <td>${item.codigo}</td>
+            <td>${item.nome}</td>
+            <td class="editable" data-type="peso" data-idx="${idx}">${(item.peso||0)}</td>
+            <td class="editable" data-type="quantidade" data-idx="${idx}">${item.quantidade}</td>
+            <td class="editable" data-type="custo" data-idx="${idx}">${item.custo.toFixed(2)}</td>
+            <td class="editable" data-type="preco" data-idx="${idx}">${item.preco.toFixed(2)}</td>
+            <td>${subtotal.toFixed(2)}</td>
+            <td><button onclick="excluirProduto(${idx})">Excluir</button></td>
+        `;
+        tbody.appendChild(tr);
+        totalQtd+=item.quantidade;
+        totalCusto+=item.custo*item.quantidade;
+        totalPreco+=item.preco*item.quantidade;
+        totalSubtotal+=subtotal;
+        totalPeso+=pesoTotalItem;
+    });
+    
+    document.getElementById('totalPeso').textContent = totalPeso + ' g';
+    document.getElementById('totalQtd').textContent = totalQtd;
+    document.getElementById('totalCusto').textContent = totalCusto.toFixed(2);
+    document.getElementById('totalPreco').textContent = totalPreco.toFixed(2);
+    document.getElementById('totalSubtotal').textContent = totalSubtotal.toFixed(2);
+    
+    const precoVendaRow = document.querySelector('#tabelaMarketplace tr[data-key="precoVenda"]');
+    precoVendaRow.querySelectorAll('td:not(:first-child)').forEach((td, i) => {
+        if (!td.hasAttribute('data-user-edited')) {
+            td.textContent = totalPreco.toFixed(2);
+        }
+    });
+
+    const impostoRow = document.querySelector('#tabelaMarketplace tr[data-key="imposto"]');
+    impostoRow.querySelectorAll('td:not(:first-child)').forEach((td, i) => {
+        if (!td.hasAttribute('data-user-edited')) {
+            const precoVendaCol = parseFloat(precoVendaRow.children[i+1].textContent)||0;
+            td.textContent = (impostoPercentual * precoVendaCol).toFixed(2);
+        }
+    });
+
+    atualizarMarketplace(totalCusto, totalPeso);
+
+    document.querySelectorAll('td.editable').forEach(td=>{
+        td.addEventListener('click',()=>{
+            if(td.querySelector('input')) return;
+            const idx=parseInt(td.dataset.idx), type=td.dataset.type;
+            const input=document.createElement('input');
+            input.type='number';
+            input.step=(type==='quantidade' || type==='peso')?'1':'0.01';
+            input.min='0';
+            input.value=selecionados[idx][type];
+            input.className='inline-input';
+            td.innerHTML='';
+            td.appendChild(input);
+            input.focus();
+            input.select();
+            input.addEventListener('blur',()=>{
+                let val=(type==='quantidade'||type==='peso')?parseInt(input.value):parseFloat(input.value);
+                if(isNaN(val)||(type==='quantidade'&&val<1)) val=(type==='quantidade')?1:selecionados[idx][type];
+                selecionados[idx][type]=val;
+                atualizarTabela();
+            });
+            input.addEventListener('keydown',e=>{if(e.key==='Enter') input.blur();});
+        });
+    });
+}
+
+function obterTaxaFixaML(precoUnit, pesoGrama) {
+    if (precoUnit >= 79.00) return 0.00;
+
+    let colIndex = 0;
+    if (precoUnit <= 18.99) colIndex = 0;
+    else if (precoUnit <= 48.99) colIndex = 1;
+    else colIndex = 2;
+
+    let pesoKg = pesoGrama / 1000;
+    let rowIndex = 0;
+
+    if (pesoKg <= 0.3) rowIndex = 0;
+    else if (pesoKg <= 0.5) rowIndex = 1;
+    else if (pesoKg <= 1.0) rowIndex = 2;
+    else if (pesoKg <= 1.5) rowIndex = 3;
+    else if (pesoKg <= 2.0) rowIndex = 4;
+    else if (pesoKg <= 3.0) rowIndex = 5;
+    else if (pesoKg <= 4.0) rowIndex = 6;
+    else if (pesoKg <= 5.0) rowIndex = 7;
+    else if (pesoKg <= 6.0) rowIndex = 8;
+    else if (pesoKg <= 7.0) rowIndex = 9;
+    else if (pesoKg <= 8.0) rowIndex = 10;
+    else if (pesoKg <= 9.0) rowIndex = 11;
+    else if (pesoKg <= 11.0) rowIndex = 12;
+    else if (pesoKg <= 13.0) rowIndex = 13;
+    else if (pesoKg <= 15.0) rowIndex = 14;
+    else if (pesoKg <= 17.0) rowIndex = 15;
+    else if (pesoKg <= 20.0) rowIndex = 16;
+    else if (pesoKg <= 25.0) rowIndex = 17;
+    else if (pesoKg <= 30.0) rowIndex = 18;
+    else if (pesoKg <= 40.0) rowIndex = 19;
+    else if (pesoKg <= 50.00) rowIndex = 20;
+    else if (pesoKg <= 60.00) rowIndex = 21;
+    else rowIndex = 22;
+
+    const matriz = [
+        [5.65, 6.55, 7.75],
+        [5.95, 6.65, 7.85],
+        [6.05, 6.75, 7.95],
+        [6.15, 6.85, 8.05],
+        [6.25, 6.95, 8.15],
+        [6.35, 7.95, 8.55],
+        [6.45, 8.15, 8.95],
+        [6.55, 8.35, 9.75],
+        [6.65, 8.55, 9.95],
+        [6.75, 8.75, 10.15],
+        [6.85, 8.95, 10.35],
+        [6.95, 9.15, 10.55],
+        [7.05, 9.55, 10.95],
+        [7.15, 9.95, 11.35],
+        [7.25, 10.15, 11.55],
+        [7.35, 10.35, 11.75],
+        [7.45, 10.55, 11.95],
+        [7.65, 10.95, 12.15],
+        [7.75, 11.15, 12.35],
+        [7.85, 11.35, 12.55],
+        [7.95, 11.55, 12.75],
+        [8.05, 11.75, 12.95],
+        [8.15, 11.95, 13.15]
+    ];
+
+    return matriz[rowIndex][colIndex];
+}
+
+function atualizarMarketplace(totalCusto, totalPeso){
+    const tbody=document.querySelector('#tabelaMarketplace tbody');
+    const qtdTotal=parseInt(document.getElementById('totalQtd').textContent)||0;
+
+    tbody.querySelector('tr[data-key="comissao"]').querySelectorAll('td:not(:first-child)').forEach((td,i)=>{
+        const percentual = parseFloat(tbody.querySelector('tr[data-key="%"]').children[i+1].textContent)||0;
+        const precoVendaCol = parseFloat(tbody.querySelector('tr[data-key="precoVenda"]').children[i+1].textContent)||0;
+        td.textContent = (precoVendaCol * percentual / 100).toFixed(2);
+    });
+
+    tbody.querySelector('tr[data-key="taxaFixa"]').querySelectorAll('td:not(:first-child)').forEach((td,i)=>{
+        let taxa = 0;
+        const precoVendaCol = parseFloat(tbody.querySelector('tr[data-key="precoVenda"]').children[i+1].textContent)||0;
+
+        if(i === 0 || i === 1) {
+            taxa = qtdTotal * 4;
+        }
+        else if(i === 2 || i === 3) {
+            let taxaSum = 0;
+            selecionados.forEach(item => {
+                const pesoUnit = parseFloat(item.peso) || 0;
+                const totalSub = parseFloat(document.getElementById('totalSubtotal').textContent) || 1;
+                const proporcao = totalSub > 0 ? (item.quantidade * item.preco) / totalSub : 1;
+                const precoUnitSimulado = precoVendaCol * proporcao / (item.quantidade || 1);
+
+                const ratePerUnit = obterTaxaFixaML(precoUnitSimulado, pesoUnit);
+                taxaSum += ratePerUnit * (item.quantidade || 0);
+            });
+            taxa = taxaSum;
+        }
+        else {
+            taxa = 0;
+        }
+
+        td.textContent = taxa.toFixed(2);
+    });
+
+    tbody.querySelector('tr[data-key="tarifaVenda"]').querySelectorAll('td:not(:first-child)').forEach((td,i)=>{ 
+        const com = parseFloat(tbody.querySelector('tr[data-key="comissao"]').children[i+1].textContent)||0; 
+        const taxa = parseFloat(tbody.querySelector('tr[data-key="taxaFixa"]').children[i+1].textContent)||0; 
+        td.textContent = (com+taxa).toFixed(2); 
+    });
+
+    const freteRow = tbody.querySelector('tr[data-key="frete"]');
+    const restouRow = tbody.querySelector('tr[data-key="restou"]');
+
+    restouRow.querySelectorAll('td:not(:first-child)').forEach((td,i)=>{
+        const preco = parseFloat(tbody.querySelector('tr[data-key="precoVenda"]').children[i+1].textContent)||0;
+        const tarifa = parseFloat(tbody.querySelector('tr[data-key="tarifaVenda"]').children[i+1].textContent)||0;
+        let frete = parseFloat(freteRow.children[i+1].textContent)||0;
+
+        if(i === 3){
+            if (preco > 79.00) {
+                frete = 1.10;
+                freteRow.children[i+1].textContent = frete.toFixed(2);
+            } else {
+                frete = parseFloat(freteRow.children[i+1].textContent) || 0;
+            }
+            td.textContent = (preco - tarifa + frete).toFixed(2);
+        }
+        else if(i === 2){
+            frete = parseFloat(freteRow.children[i+1].textContent) || 0;
+            td.textContent = (preco - tarifa - frete).toFixed(2);
+        } 
+        else {
+            td.textContent = (preco - tarifa + frete).toFixed(2);
+        }
+    });
+
+    tbody.querySelector('tr[data-key="custoProduto"]').querySelectorAll('td:not(:first-child)').forEach(td=>{
+        td.textContent = totalCusto.toFixed(2);
+    });
+
+    tbody.querySelector('tr[data-key="lucroLiquido"]').querySelectorAll('td:not(:first-child)').forEach((td,i)=>{
+        const restou = parseFloat(restouRow.children[i+1].textContent)||0;
+        const custoProd = parseFloat(tbody.querySelector('tr[data-key="custoProduto"]').children[i+1].textContent)||0;
+        const freteAd = parseFloat(tbody.querySelector('tr[data-key="freteAdicional"]').children[i+1].textContent)||0;
+        const embalagem = parseFloat(tbody.querySelector('tr[data-key="embalagem"]').children[i+1].textContent)||0;
+
+        td.textContent = (restou - custoProd - freteAd - embalagem).toFixed(2);
+    });
+
+    const impostoRow = tbody.querySelector('tr[data-key="imposto"]');
+    impostoRow.querySelectorAll('td:not(:first-child)').forEach((td,i)=>{
+        if (!td.hasAttribute('data-user-edited')) {
+            const preco = parseFloat(tbody.querySelector('tr[data-key="precoVenda"]').children[i+1].textContent)||0;
+            td.textContent = (impostoPercentual * preco).toFixed(2);
+        }
+    });
+
+    // Exibe somente a porcentagem exata da aba imposto ao lado do rótulo
+    const percentualExibido = (impostoPercentual * 100).toFixed(2);
+    document.getElementById('labelImposto').textContent = `Imposto (${percentualExibido}%)`;
+
+    const lucroNFRow = tbody.querySelector('tr[data-key="lucroLiquidoNF"]');
+    lucroNFRow.querySelectorAll('td:not(:first-child)').forEach((td,i)=>{
+        const lucro = parseFloat(tbody.querySelector('tr[data-key="lucroLiquido"]').children[i+1].textContent)||0;
+        const imposto = parseFloat(impostoRow.children[i+1].textContent)||0;
+        td.textContent = (lucro - imposto).toFixed(2);
+    });
+
+    tbody.querySelector('tr[data-key="margemLucro"]').querySelectorAll('td:not(:first-child)').forEach((td,i)=>{
+        const lucroNF = parseFloat(lucroNFRow.children[i+1].textContent)||0;
+        const preco = parseFloat(tbody.querySelector('tr[data-key="precoVenda"]').children[i+1].textContent)||1;
+        td.textContent = ((lucroNF/preco)*100).toFixed(2)+'%';
+    });
+
+    tbody.querySelector('tr[data-key="margemIdeal"]').querySelectorAll('td:not(:first-child)').forEach((td,i)=>{
+        const margem = parseFloat(tbody.querySelector('tr[data-key="margemLucro"]').children[i+1].textContent)||0;
+        let texto='', bg='', color='black';
+        if(margem<0){texto='Prejuízo'; bg='#f08080';}
+        else if(margem<10){texto='Ruim'; bg='#fcdcdc';}
+        else if(margem<15){texto='Regular'; bg='#fffacd';}
+        else if(margem<20){texto='Bom'; bg='#b6fcb6';}
+        else{texto='Excelente'; bg='#4caf50';}
+        td.textContent = texto;
+        td.style.background = bg;
+        td.style.color = color;
+        td.style.fontWeight='bold';
+        td.style.textAlign='center';
+    });
+}
+
+function renderList(){
+    const resultado=document.getElementById('resultado');
+    resultado.innerHTML='';
+    filtered.forEach((p,idx)=>{
+        const li=document.createElement('li');
+        li.innerHTML=`<span>${p.codigo} - ${p.nome} (${p.peso}g)</span><input type="number" min="1" style="width:60px" value="1">`;
+        const inputQtd=li.querySelector('input');
+        li.addEventListener('click',()=>inputQtd.focus());
+        inputQtd.addEventListener('keydown', e=>{
+            if(e.key==='Enter'){
+                const quantidade=parseInt(inputQtd.value);
+                if(!isNaN(quantidade)&&quantidade>0) selectProduto(idx,quantidade);
+            }
+        });
+        if(idx===currentIndex) li.classList.add('active');
+        resultado.appendChild(li);
+    });
+}
+
+function selectProduto(index,quantidade){
+    const p=filtered[index];
+    if(!p || quantidade<=0) return;
+    const existente=selecionados.find(s=>s.codigo===p.codigo);
+    if(existente) existente.quantidade+=quantidade;
+    else selecionados.push({...p, quantidade});
+    
+    document.querySelectorAll('#tabelaMarketplace tr[data-key="precoVenda"] td[data-user-edited], #tabelaMarketplace tr[data-key="imposto"] td[data-user-edited]').forEach(td => {
+        td.removeAttribute('data-user-edited');
+    });
+
+    atualizarTabela();
+    document.getElementById('resultado').innerHTML='';
+    filtered=[];
+    currentIndex=-1;
+    document.getElementById('busca').value='';
+    document.getElementById('busca').focus();
+}
+
+function excluirProduto(idx){ selecionados.splice(idx,1); atualizarTabela(); }
+
+document.getElementById('limparBtn').addEventListener('click', () => {
+    selecionados = [];
+    
+    document.querySelectorAll('#tabelaMarketplace tr[data-key="precoVenda"] td[data-user-edited], #tabelaMarketplace tr[data-key="imposto"] td[data-user-edited]').forEach(td => {
+        td.removeAttribute('data-user-edited');
+    });
+
+    atualizarTabela();
+    document.getElementById('resultado').innerHTML = '';
+    document.getElementById('busca').value = '';
+    document.getElementById('busca').focus();
+
+    const tbody = document.querySelector('#tabelaMarketplace tbody');
+    tbody.querySelectorAll('tr').forEach(tr => {
+        if(tr.dataset.key === '%') return;
+        tr.querySelectorAll('td:not(:first-child)').forEach((td,i) => {
+            if(tr.dataset.key === 'freteAdicional' && (i === 1 || i === 3)) return;
+            if(tr.dataset.key === 'frete' && i !== 2 && i !== 3) return; 
+            if(tr.dataset.key === 'embalagem') { td.textContent = '0'; return; }
+            if(tr.dataset.key === 'frete') { td.textContent = '0'; return; }
+            td.textContent = '';
+            td.style.background = '';
+            td.style.color = '';
+            td.classList.remove('bold', 'gray-bg');
+        });
+    });
+});
+
+document.querySelectorAll('td.editable-market').forEach(td => {
+    td.addEventListener('click', () => {
+        if (td.querySelector('input')) return;
+        
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.step = '0.01';
+        input.min = '0';
+        input.value = parseFloat(td.textContent) || 0;
+        input.className = 'inline-input';
+        td.innerHTML = '';
+        td.appendChild(input);
+        input.focus();
+        input.select();
+
+        input.addEventListener('blur', () => {
+            let val = parseFloat(input.value);
+            if (isNaN(val) || val < 0) val = 0;
+            td.textContent = val.toFixed(2);
+
+            const col = td.dataset.col;
+            const tr = td.parentElement;
+
+            if (col && (col.startsWith('preco-') || col.startsWith('imposto-'))) {
+                td.setAttribute('data-user-edited', 'true');
+            }
+
+            if (col === 'shopee') {
+                const shopeeFlexTd = tr.querySelector('td[data-col="shopeeFlex"]');
+                if (shopeeFlexTd) shopeeFlexTd.textContent = val.toFixed(2);
+            } else if (col === 'mercadoLivre') {
+                const mlFlexTd = tr.querySelector('td[data-col="mercadoLivreFlex"]');
+                if (mlFlexTd) mlFlexTd.textContent = val.toFixed(2);
+            }
+
+            let totalCusto = selecionados.reduce((acc, item) => acc + (item.custo * item.quantidade), 0);
+            let totalPeso = selecionados.reduce((acc, item) => acc + (item.quantidade * (item.peso || 0)), 0);
+            atualizarMarketplace(totalCusto, totalPeso);
+        });
+
+        input.addEventListener('keydown', e => {
+            if (e.key === 'Enter') input.blur();
+        });
+    });
+});
+
+document.getElementById('busca').addEventListener('input', e=>{
+    const termo = normalize(e.target.value);
+    filtered = produtos.filter(p => normalize(p.nome).includes(termo) || normalize(p.codigo).includes(termo));
+    
+    if (termo.length > 0) {
+        const exactIndex = filtered.findIndex(p => normalize(p.codigo) === termo);
+        if (exactIndex !== -1) {
+            currentIndex = exactIndex;
+        } else {
+            currentIndex = filtered.length > 0 ? 0 : -1;
+        }
+    } else {
+        currentIndex = -1;
+    }
+
+    renderList();
+});
+
+document.getElementById('busca').addEventListener('keydown', e=>{
+    if(filtered.length === 0) return;
+
+    if(e.key==='ArrowDown'){ 
+        e.preventDefault(); 
+        currentIndex=(currentIndex+1)%filtered.length; 
+        renderList();
+    }
+    else if(e.key==='ArrowUp'){ 
+        e.preventDefault(); 
+        currentIndex=(currentIndex-1+filtered.length)%filtered.length; 
+        renderList();
+    }
+    else if(e.key==='Enter'){
+        e.preventDefault();
+        const activeLi = document.querySelectorAll('#resultado li')[currentIndex];
+        if(activeLi) {
+            const inputQtd = activeLi.querySelector('input');
+            if(inputQtd) {
+                inputQtd.focus();
+                inputQtd.select();
+            }
+        }
+    }
+});
+</script>
+
+</body>
+</html>

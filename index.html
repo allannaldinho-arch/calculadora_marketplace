@@ -7,9 +7,11 @@
 <style>
 body { font-family: Arial; margin: 20px; background:#f5f5f5; }
 input[type="text"], input[type="file"], input[type="number"] { padding:5px; margin:5px 0; }
-ul { list-style: none; padding: 0; max-width:800px; border:1px solid #ccc; background:white; }
+ul { list-style: none; padding: 0; max-width:900px; border:1px solid #ccc; background:white; }
 li { padding:5px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; }
 li.active { background:#d0e7ff; }
+.li-info { display: flex; justify-content: space-between; width: 100%; align-items: center; padding-right: 10px; }
+.fornecedor-tag { color: #666; font-size: 0.9em; font-style: italic; }
 table { border-collapse: collapse; margin-top: 20px; width:100%; max-width:1000px; background:white; table-layout:auto; }
 th, td { border:1px solid #ccc; padding:5px; text-align:left; }
 td.editable, td.editable-market { background:#f9f9f9; cursor:pointer; outline: none; }
@@ -102,7 +104,7 @@ button { padding:5px 10px; cursor:pointer; }
 <th data-col-group="ml">Mercado Livre</th>
 <th data-col-group="ml">Mercado Livre Flex</th>
 <th data-col-group="shein">Shein</th>
-<th data-col-group="magalu" style="display:none;">Magalu</th>
+<th data-col-group="magalu">Magalu</th>
 <th data-col-group="direto">Direto</th>
 </tr>
 </thead>
@@ -114,7 +116,7 @@ button { padding:5px 10px; cursor:pointer; }
 <td class="editable-market" data-col="mercadoLivre" data-col-group="ml">12</td>
 <td class="editable-market" data-col="mercadoLivreFlex" data-col-group="ml">12</td>
 <td class="editable-market" data-col="shein" data-col-group="shein">18</td>
-<td class="editable-market" data-col="magalu" data-col-group="magalu" style="display:none;">16</td>
+<td class="editable-market" data-col="magalu" data-col-group="magalu">18</td>
 <td class="editable-market" data-col="direto" data-col-group="direto">0</td>
 </tr>
 <tr data-key="precoVenda">
@@ -124,7 +126,7 @@ button { padding:5px 10px; cursor:pointer; }
   <td class="editable-market" data-col="preco-mercadoLivre" data-col-group="ml"></td>
   <td class="editable-market" data-col="preco-mercadoLivreFlex" data-col-group="ml"></td>
   <td class="editable-market" data-col="preco-shein" data-col-group="shein"></td>
-  <td class="editable-market" data-col="preco-magalu" data-col-group="magalu" style="display:none;"></td>
+  <td class="editable-market" data-col="preco-magalu" data-col-group="magalu"></td>
   <td class="editable-market" data-col="preco-direto" data-col-group="direto">0</td>
 </tr>
 <tr data-key="comissao">
@@ -134,7 +136,7 @@ button { padding:5px 10px; cursor:pointer; }
   <td data-col-group="ml"></td>
   <td data-col-group="ml"></td>
   <td data-col-group="shein"></td>
-  <td data-col-group="magalu" style="display:none;"></td>
+  <td data-col-group="magalu"></td>
   <td data-col-group="direto">0</td>
 </tr>
 <tr data-key="taxaFixa">
@@ -144,7 +146,7 @@ button { padding:5px 10px; cursor:pointer; }
   <td data-col-group="ml"></td>
   <td data-col-group="ml"></td>
   <td data-col-group="shein"></td>
-  <td data-col-group="magalu" style="display:none;"></td>
+  <td class="editable-market" data-col="taxaFixa-magalu" data-col-group="magalu">2,00</td>
   <td data-col-group="direto">0</td>
 </tr>
 <tr data-key="tarifaVenda">
@@ -154,17 +156,17 @@ button { padding:5px 10px; cursor:pointer; }
   <td data-col-group="ml"></td>
   <td data-col-group="ml"></td>
   <td data-col-group="shein"></td>
-  <td data-col-group="magalu" style="display:none;"></td>
+  <td data-col-group="magalu"></td>
   <td data-col-group="direto">0</td>
 </tr>
 <tr data-key="frete">
   <td data-col-group="dados">Frete (Custo ou Reembolso MKP)</td>
-  <td data-col-group="shopee"></td>
-  <td data-col-group="shopee">8,00</td>
+  <td class="editable-market" data-col="frete-shopee" data-col-group="shopee">0</td>
+  <td class="editable-market" data-col="frete-shopeeFlex" data-col-group="shopee">8,00</td>
   <td class="editable-market" data-col="frete-mercadoLivre" data-col-group="ml">0</td>
   <td class="editable-market" data-col="frete-mercadoLivreFlex" data-col-group="ml">11,00</td>
-  <td data-col-group="shein"></td>
-  <td data-col-group="magalu" style="display:none;"></td>
+  <td class="editable-market" data-col="frete-shein" data-col-group="shein">0</td>
+  <td class="editable-market" data-col="frete-magalu" data-col-group="magalu">0</td>
   <td class="editable-market" data-col="frete-direto" data-col-group="direto">0</td>
 </tr>
 <tr data-key="restou">
@@ -174,7 +176,7 @@ button { padding:5px 10px; cursor:pointer; }
   <td data-col-group="ml"></td>
   <td data-col-group="ml"></td>
   <td data-col-group="shein"></td>
-  <td data-col-group="magalu" style="display:none;"></td>
+  <td data-col-group="magalu"></td>
   <td data-col-group="direto">0</td>
 </tr>
 <tr data-key="custoProduto">
@@ -184,7 +186,7 @@ button { padding:5px 10px; cursor:pointer; }
   <td data-col-group="ml"></td>
   <td data-col-group="ml"></td>
   <td data-col-group="shein"></td>
-  <td data-col-group="magalu" style="display:none;"></td>
+  <td data-col-group="magalu"></td>
   <td data-col-group="direto">0</td>
 </tr>
 
@@ -195,7 +197,7 @@ button { padding:5px 10px; cursor:pointer; }
   <td class="editable-market" data-col-group="ml">0</td>
   <td class="editable-market" data-col-group="ml">12,90</td>
   <td class="editable-market" data-col-group="shein">0</td>
-  <td class="editable-market" data-col-group="magalu" style="display:none;">0</td>
+  <td class="editable-market" data-col-group="magalu">0</td>
   <td class="editable-market" data-col-group="direto" data-col-group="direto">0</td>
 </tr>
 <tr data-key="embalagem">
@@ -205,8 +207,8 @@ button { padding:5px 10px; cursor:pointer; }
   <td class="editable-market" data-col-group="ml">1,00</td>
   <td class="editable-market" data-col-group="ml">1,00</td>
   <td class="editable-market" data-col-group="shein">1,00</td>
-  <td class="editable-market" data-col-group="magalu" style="display:none;">1,00</td>
-  <td class="editable-market" data-col-group="direto" data-col-group="direto">0</td>
+  <td class="editable-market" data-col-group="magalu">1,00</td>
+  <td class="editable-market" data-col-group="direto">0</td>
 </tr>
 
 <tr data-key="lucroLiquido">
@@ -216,7 +218,7 @@ button { padding:5px 10px; cursor:pointer; }
   <td data-col-group="ml"></td>
   <td data-col-group="ml"></td>
   <td data-col-group="shein"></td>
-  <td data-col-group="magalu" style="display:none;"></td>
+  <td data-col-group="magalu"></td>
   <td data-col-group="direto">0</td>
 </tr>
 <tr data-key="imposto">
@@ -226,7 +228,7 @@ button { padding:5px 10px; cursor:pointer; }
   <td class="editable-market" data-col="imposto-mercadoLivre" data-col-group="ml"></td>
   <td class="editable-market" data-col="imposto-mercadoLivreFlex" data-col-group="ml"></td>
   <td data-col-group="shein"></td>
-  <td data-col-group="magalu" style="display:none;"></td>
+  <td class="editable-market" data-col="imposto-magalu" data-col-group="magalu"></td>
   <td class="editable-market" data-col="imposto-direto" data-col-group="direto"></td>
 </tr>
 <tr data-key="lucroLiquidoNF">
@@ -236,7 +238,7 @@ button { padding:5px 10px; cursor:pointer; }
   <td data-col-group="ml"></td>
   <td data-col-group="ml"></td>
   <td data-col-group="shein"></td>
-  <td data-col-group="magalu" style="display:none;"></td>
+  <td data-col-group="magalu"></td>
   <td data-col-group="direto">0</td>
 </tr>
 <tr data-key="margemLucro">
@@ -246,7 +248,7 @@ button { padding:5px 10px; cursor:pointer; }
   <td data-col-group="ml"></td>
   <td data-col-group="ml"></td>
   <td data-col-group="shein"></td>
-  <td data-col-group="magalu" style="display:none;"></td>
+  <td data-col-group="magalu"></td>
   <td data-col-group="direto">0</td>
 </tr>
 <tr data-key="margemIdeal">
@@ -256,7 +258,7 @@ button { padding:5px 10px; cursor:pointer; }
   <td data-col-group="ml"></td>
   <td data-col-group="ml"></td>
   <td data-col-group="shein"></td>
-  <td data-col-group="magalu" style="display:none;"></td>
+  <td data-col-group="magalu"></td>
   <td data-col-group="direto">0</td>
 </tr>
 </tbody>
@@ -322,7 +324,33 @@ document.addEventListener('DOMContentLoaded', () => {
                         nome: row[1] ? row[1].toString().trim() : '',
                         custo: parseFloat(row[2]) || 0,
                         preco: parseFloat(row[3]) || 0,
-                        peso: parseFloat(row[4]) || 0
+                        peso: parseFloat(row[4]) || 0,
+                        fornecedor: row[4] !== undefined && row[5] !== undefined ? row[5].toString().trim() : (row[4] !== undefined && row[4] !== null && typeof row[4] === 'string' && isNaN(row[4]) ? row[4].toString().trim() : (row[4] && !isNaN(row[4]) && row[5] ? row[5].toString().trim() : ''))
+                    };
+                }).filter(p => p.codigo !== '' && p.nome !== '');
+
+                // Ajuste refinado para garantir que pegue o índice 4 (Coluna E) como fornecedor caso venha após o peso (índice 4)
+                produtos = rawData.slice(1).map(row => {
+                    return {
+                        codigo: (row !== undefined && row[0] !== null && row[0] !== '') ? row[0].toString().trim() : '',
+                        nome: row[1] ? row[1].toString().trim() : '',
+                        custo: parseFloat(row[2]) || 0,
+                        preco: parseFloat(row[3]) || 0,
+                        peso: parseFloat(row[4]) || 0,
+                        fornecedor: row[4] !== undefined && row[4] !== null && isNaN(row[4]) ? row[4].toString().trim() : (row[5] ? row[5].toString().trim() : '')
+                    };
+                }).filter(p => p.codigo !== '' && p.nome !== '');
+
+                // Correção definitiva alinhada estritamente à coluna E (índice 4):
+                // A, B, C, D, E correspondendo aos índices 0, 1, 2, 3, 4 se houver 5 colunas, ou 4 sendo a Coluna E (0=A, 1=B, 2=C, 3=D, 4=E)
+                produtos = rawData.slice(1).map(row => {
+                    return {
+                        codigo: (row !== undefined && row[0] !== null && row[0] !== '') ? row[0].toString().trim() : '',
+                        nome: row[1] ? row[1].toString().trim() : '',
+                        custo: parseFloat(row[2]) || 0,
+                        preco: parseFloat(row[3]) || 0,
+                        peso: parseFloat(row[4]) || 0,
+                        fornecedor: row[4] !== undefined && isNaN(row[4]) ? row[4].toString().trim() : (row[5] ? row[5].toString().trim() : '')
                     };
                 }).filter(p => p.codigo !== '' && p.nome !== '');
 
@@ -340,6 +368,76 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('Não foi possível carregar a planilha dados.xlsx. Verifique se o arquivo está na raiz do repositório.');
             });
     }
+});
+
+// Forçando o mapeamento exato da coluna E (índice 4)
+// Vamos sobrescrever a leitura do map para garantir que a coluna E seja o fornecedor (índice 4)
+document.addEventListener('DOMContentLoaded', () => {
+    // Sobrescrita do mapeamento para garantir que o fornecedor venha exatamente da Coluna E (Index 4)
+    // Caso a ordem seja: A=Código, B=Nome, C=Custo, D=Preço, E=Fornecedor (ignorando peso ou se peso for outra coluna)
+    // Vamos tratar considerando que Coluna E é o índice 4.
+});
+
+// Atualizando a função de leitura para tratar explicitamente a Coluna E (índice 4) como Fornecedor
+// Nota: Se a estrutura anterior era Código(0), Nome(1), Custo(2), Preço(3), Peso(4), Fornecedor(5), vamos ajustar para suportar índice 4 ou 5 dinamicamente.
+function processarProdutos(rawData) {
+    return rawData.slice(1).map(row => {
+        // Coluna E é o índice 4 (base 0: A=0, B=1, C=2, D=3, E=4)
+        let fornecVal = '';
+        if (row[4] !== undefined && isNaN(row[4])) {
+            fornecVal = row[4].toString().trim();
+        } else if (row[5] !== undefined) {
+            fornecVal = row[5].toString().trim();
+        }
+        
+        return {
+            codigo: (row !== undefined && row[0] !== null && row[0] !== '') ? row[0].toString().trim() : '',
+            nome: row[1] ? row[1].toString().trim() : '',
+            custo: parseFloat(row[2]) || 0,
+            preco: parseFloat(row[3]) || 0,
+            peso: parseFloat(row[4]) && !isNaN(row[4]) ? parseFloat(row[4]) : 0,
+            fornecedor: fornecVal
+        };
+    }).filter(p => p.codigo !== '' && p.nome !== '');
+}
+
+// Reatribuindo a chamada correta no fetch principal
+document.addEventListener('DOMContentLoaded', () => {
+    const urlPlanilhaGitHub = 'https://raw.githubusercontent.com/allannaldinho-arch/calculadora_markeplace/main/dados.xlsx';
+    if (!urlPlanilhaGitHub) return;
+    
+    // Substituindo o fetch anterior para garantir a leitura correta
+    fetch(urlPlanilhaGitHub)
+        .then(response => {
+            if (!response.ok) throw new Error('Erro ao baixar a planilha dados.xlsx.');
+            return response.arrayBuffer();
+        })
+        .then(data => {
+            const workbook = XLSX.read(data, { type: 'array' });
+            const nomeAbaImposto = workbook.SheetNames.find(name => name.trim() === 'Imposto');
+            if(nomeAbaImposto) {
+                const sheetImposto = workbook.Sheets[nomeAbaImposto];
+                if(sheetImposto && sheetImposto['B13']){
+                    let val = sheetImposto['B13'].v.toString().replace(',','.');
+                    impostoPercentual = parseFloat(val) || 0;
+                }
+            }
+
+            const nomeAbaProdutos = workbook.SheetNames.find(name => name.trim() === 'Produto') || workbook.SheetNames[0];
+            const sheetProdutos = workbook.Sheets[nomeAbaProdutos];
+            const rawData = XLSX.utils.sheet_to_json(sheetProdutos, { header: 1 });
+            
+            produtos = processarProdutos(rawData);
+
+            if(produtos.length > 0) {
+                document.getElementById('busca').disabled = false;
+                document.getElementById('busca').focus();
+            }
+            atualizarTabela();
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+        });
 });
 
 function atualizarVisibilidadeMarketplaces() {
@@ -622,7 +720,7 @@ function avaliarMargem(margem) {
     else return 'Excelente';
 }
 
-function simularMargemComPreco(precoVendaSimulado, custoProd, freteAd, embalagem, percentualComissao, grupoMkp, colName, qtdTotal, impostoEspecifico, freteCanal) {
+function simularMargemComPreco(precoVendaSimulado, custoProd, freteAd, embalagem, percentualComissao, grupoMkp, colName, qtdTotal, impostoEspecifico, freteCanal, taxaFixaEditavel) {
     let comissaoPorcentagem = percentualComissao;
     let taxaFixaCalculada = 0;
 
@@ -631,7 +729,7 @@ function simularMargemComPreco(precoVendaSimulado, custoProd, freteAd, embalagem
         comissaoPorcentagem = dadosShopee.percentual;
         taxaFixaCalculada = dadosShopee.taxaFixa * qtdTotal;
     } else if (grupoMkp === 'magalu') {
-        taxaFixaCalculada = qtdTotal * 4;
+        taxaFixaCalculada = taxaFixaEditavel * qtdTotal;
     } else if (grupoMkp === 'shein') {
         let taxaSum = 0;
         selecionados.forEach(item => {
@@ -672,9 +770,9 @@ function simularMargemComPreco(precoVendaSimulado, custoProd, freteAd, embalagem
     } else if (grupoMkp === 'ml' && !colName.includes('Flex')) {
         frete = 0; 
         restou = precoVendaSimulado - tarifa - frete;
-    } else if (colName.includes('Flex') && grupoMkp === 'shopee') {
-        frete = 8.00;
-        restou = precoVendaSimulado - tarifa + frete;
+    } else if (grupoMkp === 'shein' || grupoMkp === 'magalu' || grupoMkp === 'direto') {
+        frete = freteCanal || 0;
+        restou = precoVendaSimulado - tarifa - frete;
     } else {
         frete = freteCanal || 0;
         restou = precoVendaSimulado - tarifa + frete;
@@ -688,14 +786,14 @@ function simularMargemComPreco(precoVendaSimulado, custoProd, freteAd, embalagem
     return margem;
 }
 
-function calcularPrecoIdeal(margemAlvo, precoBase, custoProd, freteAd, embalagem, percentualComissao, grupoMkp, colName, qtdTotal, impostoEspecifico, freteCanal) {
+function calcularPrecoIdeal(margemAlvo, precoBase, custoProd, freteAd, embalagem, percentualComissao, grupoMkp, colName, qtdTotal, impostoEspecifico, freteCanal, taxaFixaEditavel) {
     let pMin = precoBase * 0.5;
     let pMax = precoBase * 5.0;
     let melhorPreco = precoBase;
 
     for (let i = 0; i < 60; i++) {
         let pMid = (pMin + pMax) / 2;
-        let margemSimulada = simularMargemComPreco(pMid, custoProd, freteAd, embalagem, percentualComissao, grupoMkp, colName, qtdTotal, impostoEspecifico, freteCanal);
+        let margemSimulada = simularMargemComPreco(pMid, custoProd, freteAd, embalagem, percentualComissao, grupoMkp, colName, qtdTotal, impostoEspecifico, freteCanal, taxaFixaEditavel);
         if (margemSimulada >= margemAlvo) {
             melhorPreco = pMid;
             pMax = pMid;
@@ -764,7 +862,12 @@ function atualizarMarketplace(totalCusto, totalPeso){
             taxa = comissaoObj.taxaFixa * qtdTotal;
         }
         else if(grupo === 'magalu') {
-            taxa = qtdTotal * 4;
+            let unitTaxa = 2.00;
+            if (td.hasAttribute('data-user-taxafixa')) {
+                unitTaxa = parseBR(td.dataset.userTaxafixa);
+            }
+            taxa = unitTaxa * qtdTotal;
+            td.textContent = formatBR(taxa);
         }
         else if(grupo === 'shein') {
             let taxaSum = 0;
@@ -797,7 +900,9 @@ function atualizarMarketplace(totalCusto, totalPeso){
             taxa = 0;
         }
 
-        td.textContent = formatBR(taxa);
+        if (grupo !== 'magalu') {
+            td.textContent = formatBR(taxa);
+        }
     });
 
     tbody.querySelector('tr[data-key="tarifaVenda"]').querySelectorAll('td:not(:first-child)').forEach((td,i)=>{ 
@@ -831,9 +936,9 @@ function atualizarMarketplace(totalCusto, totalPeso){
             frete = parseBR(freteRow.children[i+1].textContent);
             td.textContent = formatBR(preco - tarifa - frete);
         } 
-        else if(grupo === 'direto') {
+        else if(grupo === 'shein' || grupo === 'magalu' || grupo === 'direto') {
             frete = parseBR(freteRow.children[i+1].textContent);
-            td.textContent = formatBR(preco - tarifa + frete);
+            td.textContent = formatBR(preco - tarifa - frete);
         }
         else {
             td.textContent = formatBR(preco - tarifa + frete);
@@ -915,9 +1020,10 @@ function atualizarMarketplace(totalCusto, totalPeso){
         const impostoTd = impostoRow.children[i+1];
         const impostoEspecifico = parseBR(impostoTd.textContent);
         const freteCanal = parseBR(freteRow.children[i+1].textContent);
+        const taxaFixaMagalu = parseBR(tbody.querySelector('tr[data-key="taxaFixa"] td[data-col="taxaFixa-magalu"]')?.textContent || "2.00");
 
         if (metaMargem !== null && precoAtual > 0) {
-            const precoIdeal = calcularPrecoIdeal(metaMargem, precoAtual, custoProd, freteAd, embalagem, percentualComissao, grupoMkp, colName, qtdTotal, impostoEspecifico, freteCanal);
+            const precoIdeal = calcularPrecoIdeal(metaMargem, precoAtual, custoProd, freteAd, embalagem, percentualComissao, grupoMkp, colName, qtdTotal, impostoEspecifico, freteCanal, taxaFixaMagalu);
             precoVendaTd.dataset.realPreco = precoAtual.toFixed(2);
             precoVendaTd.innerHTML = `${formatBR(precoAtual)} <span class="sugestao-preco">(${formatBR(precoIdeal)})</span>`;
         } else {
@@ -932,9 +1038,16 @@ function renderList(){
     resultado.innerHTML='';
     filtered.forEach((p,idx)=>{
         const li=document.createElement('li');
-        li.innerHTML=`<span>${p.codigo} - ${p.nome}</span><input type="number" min="1" style="width:60px" value="1">`;
+        li.innerHTML=`
+            <div class="li-info">
+                <span>${p.codigo} - ${p.nome} <span class="fornecedor-tag">(${p.fornecedor || 'Sem Fornecedor'})</span></span>
+            </div>
+            <input type="number" min="1" style="width:60px" value="1">
+        `;
         const inputQtd=li.querySelector('input');
-        li.addEventListener('click',()=>inputQtd.focus());
+        li.addEventListener('click',(e)=>{
+            if(e.target !== inputQtd) inputQtd.focus();
+        });
         inputQtd.addEventListener('keydown', e=>{
             if(e.key==='Enter'){
                 const quantidade=parseInt(inputQtd.value);
@@ -998,7 +1111,8 @@ document.getElementById('btnCriarKit').addEventListener('click', () => {
         peso: pesoTotal,
         quantidade: 1,
         custo: custoTotalGeral,
-        preco: precoTotalGeral
+        preco: precoTotalGeral,
+        fornecedor: "Múltiplos Fornecedores"
     };
 
     selecionados = [produtoKit];
@@ -1039,7 +1153,8 @@ document.getElementById('limparBtn').addEventListener('click', () => {
                 td.textContent = (grupo === 'direto') ? '0,00' : '1,00'; 
                 return; 
             }
-            if(tr.dataset.key === 'frete') { td.textContent = '0'; return; }
+            if(tr.dataset.key === 'frete') { td.textContent = '0,00'; return; }
+            if(tr.dataset.key === 'taxaFixa' && grupo === 'magalu') { td.textContent = '2,00'; td.removeAttribute('data-user-taxafixa'); return; }
             td.textContent = (grupo === 'direto') ? '0,00' : '';
             td.style.background = '';
             td.style.color = '';
@@ -1074,6 +1189,10 @@ document.querySelectorAll('td.editable-market').forEach(td => {
 
             const col = td.dataset.col;
             const tr = td.parentElement;
+
+            if (tr.dataset.key === 'taxaFixa' && col === 'taxaFixa-magalu') {
+                td.dataset.userTaxafixa = val.toFixed(2);
+            }
 
             if (tr.dataset.key === '%' && col === 'mercadoLivre') {
                 const mlFlexTd = tr.querySelector('td[data-col="mercadoLivreFlex"]');

@@ -160,9 +160,9 @@ button { padding:5px 10px; cursor:pointer; }
 <tr data-key="frete">
   <td data-col-group="dados">Frete (Custo ou Reembolso MKP)</td>
   <td data-col-group="shopee"></td>
-  <td data-col-group="shopee">8.00</td>
+  <td data-col-group="shopee">8,00</td>
   <td class="editable-market" data-col="frete-mercadoLivre" data-col-group="ml">0</td>
-  <td class="editable-market" data-col="frete-mercadoLivreFlex" data-col-group="ml">11.00</td>
+  <td class="editable-market" data-col="frete-mercadoLivreFlex" data-col-group="ml">11,00</td>
   <td data-col-group="shein"></td>
   <td data-col-group="magalu" style="display:none;"></td>
   <td class="editable-market" data-col="frete-direto" data-col-group="direto">0</td>
@@ -191,21 +191,21 @@ button { padding:5px 10px; cursor:pointer; }
 <tr data-key="freteAdicional">
   <td data-col-group="dados">Frete Adicional</td>
   <td class="editable-market" data-col-group="shopee">0</td>
-  <td class="editable-market" data-col-group="shopee">8.00</td>
+  <td class="editable-market" data-col-group="shopee">8,00</td>
   <td class="editable-market" data-col-group="ml">0</td>
-  <td class="editable-market" data-col-group="ml">12.90</td>
+  <td class="editable-market" data-col-group="ml">12,90</td>
   <td class="editable-market" data-col-group="shein">0</td>
   <td class="editable-market" data-col-group="magalu" style="display:none;">0</td>
   <td class="editable-market" data-col-group="direto" data-col-group="direto">0</td>
 </tr>
 <tr data-key="embalagem">
   <td data-col-group="dados">Embalagem</td>
-  <td class="editable-market" data-col-group="shopee">1.00</td>
-  <td class="editable-market" data-col-group="shopee">1.00</td>
-  <td class="editable-market" data-col-group="ml">1.00</td>
-  <td class="editable-market" data-col-group="ml">1.00</td>
-  <td class="editable-market" data-col-group="shein">1.00</td>
-  <td class="editable-market" data-col-group="magalu" style="display:none;">1.00</td>
+  <td class="editable-market" data-col-group="shopee">1,00</td>
+  <td class="editable-market" data-col-group="shopee">1,00</td>
+  <td class="editable-market" data-col-group="ml">1,00</td>
+  <td class="editable-market" data-col-group="ml">1,00</td>
+  <td class="editable-market" data-col-group="shein">1,00</td>
+  <td class="editable-market" data-col-group="magalu" style="display:none;">1,00</td>
   <td class="editable-market" data-col-group="direto" data-col-group="direto">0</td>
 </tr>
 
@@ -220,7 +220,7 @@ button { padding:5px 10px; cursor:pointer; }
   <td data-col-group="direto">0</td>
 </tr>
 <tr data-key="imposto">
-  <td id="labelImposto" data-col-group="dados">Imposto (0.00%)</td>
+  <td id="labelImposto" data-col-group="dados">Imposto (0,00%)</td>
   <td data-col-group="shopee"></td>
   <td data-col-group="shopee"></td>
   <td class="editable-market" data-col="imposto-mercadoLivre" data-col-group="ml"></td>
@@ -265,6 +265,16 @@ button { padding:5px 10px; cursor:pointer; }
 <script>
 let produtos=[], selecionados=[], filtered=[], currentIndex=-1;
 let impostoPercentual=0;
+
+function formatBR(valor, casas = 2) {
+    if (isNaN(valor)) valor = 0;
+    return valor.toFixed(casas).replace('.', ',');
+}
+
+function parseBR(str) {
+    if (!str) return 0;
+    return parseFloat(str.toString().replace(',', '.')) || 0;
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     const tbody = document.querySelector('#tabelaMarketplace tbody');
@@ -368,9 +378,9 @@ function atualizarTabela(){
             <td>${item.nome}</td>
             <td class="editable" data-type="peso" data-idx="${idx}">${(item.peso||0)}</td>
             <td class="editable" data-type="quantidade" data-idx="${idx}">${item.quantidade}</td>
-            <td class="editable" data-type="custo" data-idx="${idx}">${item.custo.toFixed(2)}</td>
-            <td class="editable" data-type="preco" data-idx="${idx}">${item.preco.toFixed(2)}</td>
-            <td>${subtotal.toFixed(2)}</td>
+            <td class="editable" data-type="custo" data-idx="${idx}">${formatBR(item.custo)}</td>
+            <td class="editable" data-type="preco" data-idx="${idx}">${formatBR(item.preco)}</td>
+            <td>${formatBR(subtotal)}</td>
             <td><button onclick="excluirProduto(${idx})">Excluir</button></td>
         `;
         tbody.appendChild(tr);
@@ -383,14 +393,14 @@ function atualizarTabela(){
     
     document.getElementById('totalPeso').textContent = totalPeso + ' g';
     document.getElementById('totalQtd').textContent = totalQtd;
-    document.getElementById('totalCusto').textContent = totalCusto.toFixed(2);
-    document.getElementById('totalPreco').textContent = totalPreco.toFixed(2);
-    document.getElementById('totalSubtotal').textContent = totalSubtotal.toFixed(2);
+    document.getElementById('totalCusto').textContent = formatBR(totalCusto);
+    document.getElementById('totalPreco').textContent = formatBR(totalPreco);
+    document.getElementById('totalSubtotal').textContent = formatBR(totalSubtotal);
     
     const precoVendaRow = document.querySelector('#tabelaMarketplace tr[data-key="precoVenda"]');
     precoVendaRow.querySelectorAll('td:not(:first-child)').forEach((td, i) => {
         if (!td.hasAttribute('data-user-edited')) {
-            td.textContent = totalPreco.toFixed(2);
+            td.textContent = formatBR(totalPreco);
             td.removeAttribute('data-user-preco');
             td.removeAttribute('data-real-preco');
         }
@@ -399,8 +409,8 @@ function atualizarTabela(){
     const impostoRow = document.querySelector('#tabelaMarketplace tr[data-key="imposto"]');
     impostoRow.querySelectorAll('td:not(:first-child)').forEach((td, i) => {
         if (!td.hasAttribute('data-user-edited')) {
-            const precoVendaCol = parseFloat(precoVendaRow.children[i+1].dataset.userPreco || precoVendaRow.children[i+1].textContent.split(' ')[0])||0;
-            td.textContent = (impostoPercentual * precoVendaCol).toFixed(2);
+            const precoVendaCol = parseBR(precoVendaRow.children[i+1].dataset.userPreco || precoVendaRow.children[i+1].textContent.split(' ')[0]);
+            td.textContent = formatBR(impostoPercentual * precoVendaCol);
         }
     });
 
@@ -411,17 +421,16 @@ function atualizarTabela(){
             if(td.querySelector('input')) return;
             const idx=parseInt(td.dataset.idx), type=td.dataset.type;
             const input=document.createElement('input');
-            input.type='number';
-            input.step=(type==='quantidade' || type==='peso')?'1':'0.01';
-            input.min='0';
-            input.value=selecionados[idx][type];
+            input.type='text';
+            input.value = (type==='quantidade' || type==='peso') ? selecionados[idx][type] : formatBR(selecionados[idx][type]);
             input.className='inline-input';
             td.innerHTML='';
             td.appendChild(input);
             input.focus();
             input.select();
             input.addEventListener('blur',()=>{
-                let val=(type==='quantidade'||type==='peso')?parseInt(input.value):parseFloat(input.value);
+                let val = parseBR(input.value);
+                if(type==='quantidade' || type==='peso') val = parseInt(input.value.replace(/\D/g,'')) || 0;
                 if(isNaN(val)||(type==='quantidade'&&val<1)) val=(type==='quantidade')?1:selecionados[idx][type];
                 selecionados[idx][type]=val;
                 
@@ -633,7 +642,7 @@ function simularMargemComPreco(precoVendaSimulado, custoProd, freteAd, embalagem
         taxaFixaCalculada = taxaSum;
     } else if (grupoMkp === 'ml') {
         let taxaSum = 0;
-        const totalSub = parseFloat(document.getElementById('totalSubtotal').textContent) || 1;
+        const totalSub = parseBR(document.getElementById('totalSubtotal').textContent) || 1;
         selecionados.forEach(item => {
             const pesoUnit = parseFloat(item.peso) || 0;
             const proporcao = totalSub > 0 ? (item.quantidade * item.preco) / totalSub : 1;
@@ -704,10 +713,10 @@ function atualizarMarketplace(totalCusto, totalPeso){
     const precoVendaRow = tbody.querySelector('tr[data-key="precoVenda"]');
     precoVendaRow.querySelectorAll('td:not(:first-child)').forEach((td, i) => {
         if (td.hasAttribute('data-user-edited') && td.dataset.userPreco) {
-            td.textContent = parseFloat(td.dataset.userPreco).toFixed(2);
+            td.textContent = formatBR(parseFloat(td.dataset.userPreco));
         } else if (!td.hasAttribute('data-user-edited')) {
-            const defaultTotal = parseFloat(document.getElementById('totalPreco').textContent) || 0;
-            td.textContent = defaultTotal.toFixed(2);
+            const defaultTotal = parseBR(document.getElementById('totalPreco').textContent) || 0;
+            td.textContent = formatBR(defaultTotal);
         }
     });
 
@@ -715,11 +724,11 @@ function atualizarMarketplace(totalCusto, totalPeso){
         const thElement = document.querySelectorAll('#tabelaMarketplace th')[i+1];
         const grupo = thElement ? thElement.getAttribute('data-col-group') : '';
         if(grupo === 'direto') {
-            td.textContent = '0.00';
+            td.textContent = '0,00';
             return;
         }
 
-        const precoVendaCol = parseFloat(precoVendaRow.children[i+1].dataset.userPreco || precoVendaRow.children[i+1].textContent.split(' ')[0])||0;
+        const precoVendaCol = parseBR(precoVendaRow.children[i+1].dataset.userPreco || precoVendaRow.children[i+1].textContent.split(' ')[0]);
         let percentual = 0;
 
         if (grupo === 'shopee') {
@@ -728,26 +737,26 @@ function atualizarMarketplace(totalCusto, totalPeso){
             
             const percentualCell = tbody.querySelector(`tr[data-key="%"] td:nth-child(${i+2})`);
             if (percentualCell && !percentualCell.querySelector('input')) {
-                percentualCell.textContent = percentual;
+                percentualCell.textContent = percentual.toString().replace('.', ',');
             }
         } else {
             const percentualInput = tbody.querySelector(`tr[data-key="%"] td:nth-child(${i+2})`);
-            percentual = parseFloat(percentualInput.textContent)||0;
+            percentual = parseBR(percentualInput.textContent);
         }
 
-        td.textContent = (precoVendaCol * percentual / 100).toFixed(2);
+        td.textContent = formatBR(precoVendaCol * percentual / 100);
     });
 
     tbody.querySelector('tr[data-key="taxaFixa"]').querySelectorAll('td:not(:first-child)').forEach((td,i)=>{
         const thElement = document.querySelectorAll('#tabelaMarketplace th')[i+1];
         const grupo = thElement ? thElement.getAttribute('data-col-group') : '';
         if(grupo === 'direto') {
-            td.textContent = '0.00';
+            td.textContent = '0,00';
             return;
         }
 
         let taxa = 0;
-        const precoVendaCol = parseFloat(precoVendaRow.children[i+1].dataset.userPreco || precoVendaRow.children[i+1].textContent.split(' ')[0])||0;
+        const precoVendaCol = parseBR(precoVendaRow.children[i+1].dataset.userPreco || precoVendaRow.children[i+1].textContent.split(' ')[0]);
         const colName = thElement ? thElement.textContent.trim() : '';
 
         if(grupo === 'shopee') {
@@ -770,7 +779,7 @@ function atualizarMarketplace(totalCusto, totalPeso){
             let taxaSum = 0;
             selecionados.forEach(item => {
                 const pesoUnit = parseFloat(item.peso) || 0;
-                const totalSub = parseFloat(document.getElementById('totalSubtotal').textContent) || 1;
+                const totalSub = parseBR(document.getElementById('totalSubtotal').textContent) || 1;
                 const proporcao = totalSub > 0 ? (item.quantidade * item.preco) / totalSub : 1;
                 const precoUnitSimulado = precoVendaCol * proporcao / (item.quantidade || 1);
 
@@ -788,22 +797,22 @@ function atualizarMarketplace(totalCusto, totalPeso){
             taxa = 0;
         }
 
-        td.textContent = taxa.toFixed(2);
+        td.textContent = formatBR(taxa);
     });
 
     tbody.querySelector('tr[data-key="tarifaVenda"]').querySelectorAll('td:not(:first-child)').forEach((td,i)=>{ 
-        const com = parseFloat(tbody.querySelector('tr[data-key="comissao"]').children[i+1].textContent)||0; 
-        const taxa = parseFloat(tbody.querySelector('tr[data-key="taxaFixa"]').children[i+1].textContent)||0; 
-        td.textContent = (com+taxa).toFixed(2); 
+        const com = parseBR(tbody.querySelector('tr[data-key="comissao"]').children[i+1].textContent); 
+        const taxa = parseBR(tbody.querySelector('tr[data-key="taxaFixa"]').children[i+1].textContent); 
+        td.textContent = formatBR(com + taxa); 
     });
 
     const freteRow = tbody.querySelector('tr[data-key="frete"]');
     const restouRow = tbody.querySelector('tr[data-key="restou"]');
 
     restouRow.querySelectorAll('td:not(:first-child)').forEach((td,i)=>{
-        const preco = parseFloat(precoVendaRow.children[i+1].dataset.userPreco || precoVendaRow.children[i+1].textContent.split(' ')[0])||0;
-        const tarifa = parseFloat(tbody.querySelector('tr[data-key="tarifaVenda"]').children[i+1].textContent)||0;
-        let frete = parseFloat(freteRow.children[i+1].textContent)||0;
+        const preco = parseBR(precoVendaRow.children[i+1].dataset.userPreco || precoVendaRow.children[i+1].textContent.split(' ')[0]);
+        const tarifa = parseBR(tbody.querySelector('tr[data-key="tarifaVenda"]').children[i+1].textContent);
+        let frete = parseBR(freteRow.children[i+1].textContent);
         const thElement = document.querySelectorAll('#tabelaMarketplace th')[i+1];
         const grupo = thElement ? thElement.getAttribute('data-col-group') : '';
         const colName = thElement ? thElement.textContent.trim() : '';
@@ -811,66 +820,66 @@ function atualizarMarketplace(totalCusto, totalPeso){
         if(grupo === 'ml' && colName.includes('Flex')){ 
             if (preco >= 79.00) {
                 frete = 1.10;
-                freteRow.children[i+1].textContent = frete.toFixed(2);
+                freteRow.children[i+1].textContent = formatBR(frete);
             } else {
                 frete = 11.00;
-                freteRow.children[i+1].textContent = frete.toFixed(2);
+                freteRow.children[i+1].textContent = formatBR(frete);
             }
-            td.textContent = (preco - tarifa + frete).toFixed(2); 
+            td.textContent = formatBR(preco - tarifa + frete); 
         }
         else if(grupo === 'ml' && !colName.includes('Flex')){ 
-            frete = parseFloat(freteRow.children[i+1].textContent) || 0;
-            td.textContent = (preco - tarifa - frete).toFixed(2);
+            frete = parseBR(freteRow.children[i+1].textContent);
+            td.textContent = formatBR(preco - tarifa - frete);
         } 
         else if(grupo === 'direto') {
-            frete = parseFloat(freteRow.children[i+1].textContent) || 0;
-            td.textContent = (preco - tarifa + frete).toFixed(2);
+            frete = parseBR(freteRow.children[i+1].textContent);
+            td.textContent = formatBR(preco - tarifa + frete);
         }
         else {
-            td.textContent = (preco - tarifa + frete).toFixed(2);
+            td.textContent = formatBR(preco - tarifa + frete);
         }
     });
 
     tbody.querySelector('tr[data-key="custoProduto"]').querySelectorAll('td:not(:first-child)').forEach(td=>{
-        td.textContent = totalCusto.toFixed(2);
+        td.textContent = formatBR(totalCusto);
     });
 
     tbody.querySelector('tr[data-key="lucroLiquido"]').querySelectorAll('td:not(:first-child)').forEach((td,i)=>{
-        const restou = parseFloat(restouRow.children[i+1].textContent)||0;
-        const custoProd = parseFloat(tbody.querySelector('tr[data-key="custoProduto"]').children[i+1].textContent)||0;
-        const freteAd = parseFloat(tbody.querySelector('tr[data-key="freteAdicional"]').children[i+1].textContent)||0;
-        const embalagem = parseFloat(tbody.querySelector('tr[data-key="embalagem"]').children[i+1].textContent)||0;
+        const restou = parseBR(restouRow.children[i+1].textContent);
+        const custoProd = parseBR(tbody.querySelector('tr[data-key="custoProduto"]').children[i+1].textContent);
+        const freteAd = parseBR(tbody.querySelector('tr[data-key="freteAdicional"]').children[i+1].textContent);
+        const embalagem = parseBR(tbody.querySelector('tr[data-key="embalagem"]').children[i+1].textContent);
 
-        td.textContent = (restou - custoProd - freteAd - embalagem).toFixed(2);
+        td.textContent = formatBR(restou - custoProd - freteAd - embalagem);
     });
 
     const impostoRow = tbody.querySelector('tr[data-key="imposto"]');
     impostoRow.querySelectorAll('td:not(:first-child)').forEach((td,i)=>{
         if (!td.hasAttribute('data-user-edited')) {
-            const preco = parseFloat(precoVendaRow.children[i+1].dataset.userPreco || precoVendaRow.children[i+1].textContent.split(' ')[0])||0;
-            td.textContent = (impostoPercentual * preco).toFixed(2);
+            const preco = parseBR(precoVendaRow.children[i+1].dataset.userPreco || precoVendaRow.children[i+1].textContent.split(' ')[0]);
+            td.textContent = formatBR(impostoPercentual * preco);
         }
     });
 
-    const percentualExibido = (impostoPercentual * 100).toFixed(2);
+    const percentualExibido = formatBR(impostoPercentual * 100);
     document.getElementById('labelImposto').textContent = `Imposto (${percentualExibido}%)`;
 
     const lucroNFRow = tbody.querySelector('tr[data-key="lucroLiquidoNF"]');
     lucroNFRow.querySelectorAll('td:not(:first-child)').forEach((td,i)=>{
-        const lucro = parseFloat(tbody.querySelector('tr[data-key="lucroLiquido"]').children[i+1].textContent)||0;
-        const imposto = parseFloat(impostoRow.children[i+1].textContent)||0;
-        td.textContent = (lucro - imposto).toFixed(2);
+        const lucro = parseBR(tbody.querySelector('tr[data-key="lucroLiquido"]').children[i+1].textContent);
+        const imposto = parseBR(impostoRow.children[i+1].textContent);
+        td.textContent = formatBR(lucro - imposto);
     });
 
     tbody.querySelector('tr[data-key="margemLucro"]').querySelectorAll('td:not(:first-child)').forEach((td,i)=>{
-        const lucroNF = parseFloat(lucroNFRow.children[i+1].textContent)||0;
-        const preco = parseFloat(precoVendaRow.children[i+1].dataset.userPreco || precoVendaRow.children[i+1].textContent.split(' ')[0])||1;
-        td.textContent = ((lucroNF/preco)*100).toFixed(2)+'%';
+        const lucroNF = parseBR(lucroNFRow.children[i+1].textContent);
+        const preco = parseBR(precoVendaRow.children[i+1].dataset.userPreco || precoVendaRow.children[i+1].textContent.split(' ')[0]) || 1;
+        td.textContent = formatBR((lucroNF/preco)*100) + '%';
     });
 
     tbody.querySelector('tr[data-key="margemIdeal"]').querySelectorAll('td:not(:first-child)').forEach((td,i)=>{
         const margemStr = tbody.querySelector('tr[data-key="margemLucro"]').children[i+1].textContent;
-        const margem = parseFloat(margemStr) || 0;
+        const margem = parseBR(margemStr.replace('%','')) || 0;
         const categoria = avaliarMargem(margem);
 
         let texto='', bg='', color='black';
@@ -893,27 +902,27 @@ function atualizarMarketplace(totalCusto, totalPeso){
         else if(categoria === 'Bom') metaMargem = 20;
 
         const precoVendaTd = precoVendaRow.children[i+1];
-        const precoBaseTotal = parseFloat(document.getElementById('totalPreco').textContent) || 0;
-        const precoAtual = parseFloat(precoVendaTd.dataset.userPreco || precoVendaTd.dataset.realPreco || precoVendaTd.textContent.split(' ')[0]) || precoBaseTotal;
-        const custoProd = parseFloat(tbody.querySelector('tr[data-key="custoProduto"]').children[i+1].textContent) || 0;
-        const freteAd = parseFloat(tbody.querySelector('tr[data-key="freteAdicional"]').children[i+1].textContent) || 0;
-        const embalagem = parseFloat(tbody.querySelector('tr[data-key="embalagem"]').children[i+1].textContent) || 0;
-        const percentualComissao = parseFloat(tbody.querySelector('tr[data-key="%"]').children[i+1].textContent) || 0;
+        const precoBaseTotal = parseBR(document.getElementById('totalPreco').textContent);
+        const precoAtual = parseBR(precoVendaTd.dataset.userPreco || precoVendaTd.dataset.realPreco || precoVendaTd.textContent.split(' ')[0]) || precoBaseTotal;
+        const custoProd = parseBR(tbody.querySelector('tr[data-key="custoProduto"]').children[i+1].textContent);
+        const freteAd = parseBR(tbody.querySelector('tr[data-key="freteAdicional"]').children[i+1].textContent);
+        const embalagem = parseBR(tbody.querySelector('tr[data-key="embalagem"]').children[i+1].textContent);
+        const percentualComissao = parseBR(tbody.querySelector('tr[data-key="%"]').children[i+1].textContent);
         const thElement = document.querySelectorAll('#tabelaMarketplace th')[i+1];
         const grupoMkp = thElement ? thElement.getAttribute('data-col-group') : '';
         const colName = thElement ? thElement.textContent.trim() : '';
 
         const impostoTd = impostoRow.children[i+1];
-        const impostoEspecifico = parseFloat(impostoTd.textContent) || 0;
-        const freteCanal = parseFloat(freteRow.children[i+1].textContent) || 0;
+        const impostoEspecifico = parseBR(impostoTd.textContent);
+        const freteCanal = parseBR(freteRow.children[i+1].textContent);
 
         if (metaMargem !== null && precoAtual > 0) {
             const precoIdeal = calcularPrecoIdeal(metaMargem, precoAtual, custoProd, freteAd, embalagem, percentualComissao, grupoMkp, colName, qtdTotal, impostoEspecifico, freteCanal);
             precoVendaTd.dataset.realPreco = precoAtual.toFixed(2);
-            precoVendaTd.innerHTML = `${precoAtual.toFixed(2)} <span class="sugestao-preco">(${precoIdeal.toFixed(2)})</span>`;
+            precoVendaTd.innerHTML = `${formatBR(precoAtual)} <span class="sugestao-preco">(${formatBR(precoIdeal)})</span>`;
         } else {
             precoVendaTd.dataset.realPreco = precoAtual.toFixed(2);
-            precoVendaTd.innerHTML = precoAtual.toFixed(2);
+            precoVendaTd.innerHTML = formatBR(precoAtual);
         }
     });
 }
@@ -1027,11 +1036,11 @@ document.getElementById('limparBtn').addEventListener('click', () => {
             if(tr.dataset.key === 'freteAdicional' && (i === 1 || i === 3)) return;
             if(tr.dataset.key === 'frete' && i !== 2 && i !== 3) return; 
             if(tr.dataset.key === 'embalagem') { 
-                td.textContent = (grupo === 'direto') ? '0.00' : '1.00'; 
+                td.textContent = (grupo === 'direto') ? '0,00' : '1,00'; 
                 return; 
             }
             if(tr.dataset.key === 'frete') { td.textContent = '0'; return; }
-            td.textContent = (grupo === 'direto') ? '0.00' : '';
+            td.textContent = (grupo === 'direto') ? '0,00' : '';
             td.style.background = '';
             td.style.color = '';
             td.classList.remove('bold', 'gray-bg');
@@ -1045,11 +1054,9 @@ document.querySelectorAll('td.editable-market').forEach(td => {
         
         const valorAtual = td.dataset.userPreco || td.dataset.realPreco || td.textContent.split(' ')[0];
         const input = document.createElement('input');
-        input.type = 'number';
-        input.step = '0.01';
-        input.min = '0';
-        input.value = parseFloat(valorAtual) || 0;
+        input.type = 'text';
         input.className = 'inline-input';
+        input.value = formatBR(parseBR(valorAtual));
         td.innerHTML = '';
         td.appendChild(input);
         input.focus();
@@ -1061,9 +1068,9 @@ document.querySelectorAll('td.editable-market').forEach(td => {
             if (committed) return;
             committed = true;
 
-            let val = parseFloat(input.value);
+            let val = parseBR(input.value);
             if (isNaN(val) || val < 0) val = 0;
-            td.textContent = val.toFixed(2);
+            td.textContent = formatBR(val);
 
             const col = td.dataset.col;
             const tr = td.parentElement;
@@ -1071,7 +1078,7 @@ document.querySelectorAll('td.editable-market').forEach(td => {
             if (tr.dataset.key === '%' && col === 'mercadoLivre') {
                 const mlFlexTd = tr.querySelector('td[data-col="mercadoLivreFlex"]');
                 if (mlFlexTd) {
-                    mlFlexTd.textContent = val.toFixed(2);
+                    mlFlexTd.textContent = formatBR(val);
                 }
             }
 

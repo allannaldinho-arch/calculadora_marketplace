@@ -495,13 +495,16 @@ function obterTaxaFixaML(precoUnit, pesoGrama) {
     else if (pesoKg <= 20.0) rowIndex = 16;
     else if (pesoKg <= 25.0) rowIndex = 17;
     else if (pesoKg <= 30.0) rowIndex = 18;
-    else if (pesoKg <= 70.0) rowIndex = 19;
-    else if (pesoKg <= 80.0) rowIndex = 20;
-    else if (pesoKg <= 90.0) rowIndex = 21;
-    else if (pesoKg <= 100.0) rowIndex = 22;
-    else if (pesoKg <= 125.0) rowIndex = 23;
-    else if (pesoKg <= 150.0) rowIndex = 24;
-    else rowIndex = 25;
+    else if (pesoKg <= 40.0) rowIndex = 19;
+    else if (pesoKg <= 50.0) rowIndex = 20;
+    else if (pesoKg <= 60.0) rowIndex = 21;
+    else if (pesoKg <= 70.0) rowIndex = 22;
+    else if (pesoKg <= 80.0) rowIndex = 23;
+    else if (pesoKg <= 90.0) rowIndex = 24;
+    else if (pesoKg <= 100.0) rowIndex = 25;
+    else if (pesoKg <= 125.0) rowIndex = 26;
+    else if (pesoKg <= 150.0) rowIndex = 27;
+    else rowIndex = 28;
 
     const matriz = [
         [5.65, 6.55, 7.75, 12.35, 14.35, 16.45, 18.45, 20.95],
@@ -523,6 +526,9 @@ function obterTaxaFixaML(precoUnit, pesoGrama) {
         [7.45, 10.55, 11.95, 54.75, 63.85, 72.95, 82.05, 91.15],
         [7.65, 10.95, 12.15, 64.05, 75.05, 84.75, 95.35, 105.95],
         [7.75, 11.15, 12.35, 65.95, 75.45, 85.55, 96.25, 106.95],
+        [7.85, 11.35, 12.55, 67.75, 78.95, 88.95, 99.15, 107.05],
+        [7.95, 11.55, 12.75, 70.25, 81.05, 92.05, 102.55, 110.75],
+        [8.05, 11.75, 12.95, 74.95, 86.45, 98.15, 109.35, 118.15],
         [8.15, 11.95, 13.15, 80.25, 92.95, 105.05, 117.15, 126.55],
         [8.25, 12.15, 13.35, 83.95, 97.05, 109.85, 122.45, 132.25],
         [8.35, 12.35, 13.55, 93.25, 107.45, 122.05, 136.05, 146.95],
@@ -608,11 +614,15 @@ function avaliarMargem(margem) {
 }
 
 function simularMargemComPreco(precoVendaSimulado, custoProd, freteAd, embalagem, percentualComissao, grupoMkp, colName, qtdTotal, impostoEspecifico, freteCanal) {
-    let comissao = precoVendaSimulado * (percentualComissao / 100);
-    let taxaFixa = 0;
+    let comissaoPorcentagem = percentualComissao;
+    let taxaFixaCalculada = 0;
 
-    if (grupoMkp === 'shopee' || grupoMkp === 'magalu') {
-        taxaFixa = qtdTotal * 4;
+    if (grupoMkp === 'shopee') {
+        const dadosShopee = obterComissoesShopee(precoVendaSimulado);
+        comissaoPorcentagem = dadosShopee.percentual;
+        taxaFixaCalculada = dadosShopee.taxaFixa * qtdTotal;
+    } else if (grupoMkp === 'magalu') {
+        taxaFixaCalculada = qtdTotal * 4;
     } else if (grupoMkp === 'shein') {
         let taxaSum = 0;
         selecionados.forEach(item => {
@@ -620,7 +630,7 @@ function simularMargemComPreco(precoVendaSimulado, custoProd, freteAd, embalagem
             const taxaUnit = obterTaxaFixaShein(pesoUnit);
             taxaSum += taxaUnit * (item.quantidade || 0);
         });
-        taxaFixa = taxaSum;
+        taxaFixaCalculada = taxaSum;
     } else if (grupoMkp === 'ml') {
         let taxaSum = 0;
         const totalSub = parseFloat(document.getElementById('totalSubtotal').textContent) || 1;
@@ -637,12 +647,13 @@ function simularMargemComPreco(precoVendaSimulado, custoProd, freteAd, embalagem
             }
             taxaSum += ratePerUnit * (item.quantidade || 0);
         });
-        taxaFixa = taxaSum;
+        taxaFixaCalculada = taxaSum;
     } else if (grupoMkp === 'direto') {
-        taxaFixa = 0;
+        taxaFixaCalculada = 0;
     }
 
-    let tarifa = comissao + taxaFixa;
+    let comissao = precoVendaSimulado * (comissaoPorcentagem / 100);
+    let tarifa = comissao + taxaFixaCalculada;
     let frete = 0;
     let restou = 0;
 
@@ -707,9 +718,23 @@ function atualizarMarketplace(totalCusto, totalPeso){
             td.textContent = '0.00';
             return;
         }
-        const percentualInput = tbody.querySelector(`tr[data-key="%"] td:nth-child(${i+2})`);
-        const percentual = parseFloat(percentualInput.textContent)||0;
+
         const precoVendaCol = parseFloat(precoVendaRow.children[i+1].dataset.userPreco || precoVendaRow.children[i+1].textContent.split(' ')[0])||0;
+        let percentual = 0;
+
+        if (grupo === 'shopee') {
+            const comissaoObj = obterComissoesShopee(precoVendaCol);
+            percentual = comissaoObj.percentual;
+            
+            const percentualCell = tbody.querySelector(`tr[data-key="%"] td:nth-child(${i+2})`);
+            if (percentualCell && !percentualCell.querySelector('input')) {
+                percentualCell.textContent = percentual;
+            }
+        } else {
+            const percentualInput = tbody.querySelector(`tr[data-key="%"] td:nth-child(${i+2})`);
+            percentual = parseFloat(percentualInput.textContent)||0;
+        }
+
         td.textContent = (precoVendaCol * percentual / 100).toFixed(2);
     });
 
@@ -725,7 +750,11 @@ function atualizarMarketplace(totalCusto, totalPeso){
         const precoVendaCol = parseFloat(precoVendaRow.children[i+1].dataset.userPreco || precoVendaRow.children[i+1].textContent.split(' ')[0])||0;
         const colName = thElement ? thElement.textContent.trim() : '';
 
-        if(grupo === 'shopee' || grupo === 'magalu') {
+        if(grupo === 'shopee') {
+            const comissaoObj = obterComissoesShopee(precoVendaCol);
+            taxa = comissaoObj.taxaFixa * qtdTotal;
+        }
+        else if(grupo === 'magalu') {
             taxa = qtdTotal * 4;
         }
         else if(grupo === 'shein') {

@@ -318,41 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 const rawData = XLSX.utils.sheet_to_json(sheetProdutos, { header: 1 });
                 
-                produtos = rawData.slice(1).map(row => {
-                    return {
-                        codigo: (row !== undefined && row[0] !== null && row[0] !== '') ? row[0].toString().trim() : '',
-                        nome: row[1] ? row[1].toString().trim() : '',
-                        custo: parseFloat(row[2]) || 0,
-                        preco: parseFloat(row[3]) || 0,
-                        peso: parseFloat(row[4]) || 0,
-                        fornecedor: row[4] !== undefined && row[5] !== undefined ? row[5].toString().trim() : (row[4] !== undefined && row[4] !== null && typeof row[4] === 'string' && isNaN(row[4]) ? row[4].toString().trim() : (row[4] && !isNaN(row[4]) && row[5] ? row[5].toString().trim() : ''))
-                    };
-                }).filter(p => p.codigo !== '' && p.nome !== '');
-
-                // Ajuste refinado para garantir que pegue o índice 4 (Coluna E) como fornecedor caso venha após o peso (índice 4)
-                produtos = rawData.slice(1).map(row => {
-                    return {
-                        codigo: (row !== undefined && row[0] !== null && row[0] !== '') ? row[0].toString().trim() : '',
-                        nome: row[1] ? row[1].toString().trim() : '',
-                        custo: parseFloat(row[2]) || 0,
-                        preco: parseFloat(row[3]) || 0,
-                        peso: parseFloat(row[4]) || 0,
-                        fornecedor: row[4] !== undefined && row[4] !== null && isNaN(row[4]) ? row[4].toString().trim() : (row[5] ? row[5].toString().trim() : '')
-                    };
-                }).filter(p => p.codigo !== '' && p.nome !== '');
-
-                // Correção definitiva alinhada estritamente à coluna E (índice 4):
-                // A, B, C, D, E correspondendo aos índices 0, 1, 2, 3, 4 se houver 5 colunas, ou 4 sendo a Coluna E (0=A, 1=B, 2=C, 3=D, 4=E)
-                produtos = rawData.slice(1).map(row => {
-                    return {
-                        codigo: (row !== undefined && row[0] !== null && row[0] !== '') ? row[0].toString().trim() : '',
-                        nome: row[1] ? row[1].toString().trim() : '',
-                        custo: parseFloat(row[2]) || 0,
-                        preco: parseFloat(row[3]) || 0,
-                        peso: parseFloat(row[4]) || 0,
-                        fornecedor: row[4] !== undefined && isNaN(row[4]) ? row[4].toString().trim() : (row[5] ? row[5].toString().trim() : '')
-                    };
-                }).filter(p => p.codigo !== '' && p.nome !== '');
+                produtos = processarProdutos(rawData);
 
                 if(produtos.length > 0) {
                     document.getElementById('busca').disabled = false;
@@ -370,19 +336,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Forçando o mapeamento exato da coluna E (índice 4)
-// Vamos sobrescrever a leitura do map para garantir que a coluna E seja o fornecedor (índice 4)
-document.addEventListener('DOMContentLoaded', () => {
-    // Sobrescrita do mapeamento para garantir que o fornecedor venha exatamente da Coluna E (Index 4)
-    // Caso a ordem seja: A=Código, B=Nome, C=Custo, D=Preço, E=Fornecedor (ignorando peso ou se peso for outra coluna)
-    // Vamos tratar considerando que Coluna E é o índice 4.
-});
-
-// Atualizando a função de leitura para tratar explicitamente a Coluna E (índice 4) como Fornecedor
-// Nota: Se a estrutura anterior era Código(0), Nome(1), Custo(2), Preço(3), Peso(4), Fornecedor(5), vamos ajustar para suportar índice 4 ou 5 dinamicamente.
 function processarProdutos(rawData) {
     return rawData.slice(1).map(row => {
-        // Coluna E é o índice 4 (base 0: A=0, B=1, C=2, D=3, E=4)
         let fornecVal = '';
         if (row[4] !== undefined && isNaN(row[4])) {
             fornecVal = row[4].toString().trim();
@@ -400,45 +355,6 @@ function processarProdutos(rawData) {
         };
     }).filter(p => p.codigo !== '' && p.nome !== '');
 }
-
-// Reatribuindo a chamada correta no fetch principal
-document.addEventListener('DOMContentLoaded', () => {
-    const urlPlanilhaGitHub = 'https://raw.githubusercontent.com/allannaldinho-arch/calculadora_markeplace/main/dados.xlsx';
-    if (!urlPlanilhaGitHub) return;
-    
-    // Substituindo o fetch anterior para garantir a leitura correta
-    fetch(urlPlanilhaGitHub)
-        .then(response => {
-            if (!response.ok) throw new Error('Erro ao baixar a planilha dados.xlsx.');
-            return response.arrayBuffer();
-        })
-        .then(data => {
-            const workbook = XLSX.read(data, { type: 'array' });
-            const nomeAbaImposto = workbook.SheetNames.find(name => name.trim() === 'Imposto');
-            if(nomeAbaImposto) {
-                const sheetImposto = workbook.Sheets[nomeAbaImposto];
-                if(sheetImposto && sheetImposto['B13']){
-                    let val = sheetImposto['B13'].v.toString().replace(',','.');
-                    impostoPercentual = parseFloat(val) || 0;
-                }
-            }
-
-            const nomeAbaProdutos = workbook.SheetNames.find(name => name.trim() === 'Produto') || workbook.SheetNames[0];
-            const sheetProdutos = workbook.Sheets[nomeAbaProdutos];
-            const rawData = XLSX.utils.sheet_to_json(sheetProdutos, { header: 1 });
-            
-            produtos = processarProdutos(rawData);
-
-            if(produtos.length > 0) {
-                document.getElementById('busca').disabled = false;
-                document.getElementById('busca').focus();
-            }
-            atualizarTabela();
-        })
-        .catch(error => {
-            console.error('Erro:', error);
-        });
-});
 
 function atualizarVisibilidadeMarketplaces() {
     const ativos = Array.from(document.querySelectorAll('.btn-filtro.ativo')).map(b => b.dataset.mkp);
@@ -1276,12 +1192,8 @@ document.getElementById('busca').addEventListener('keydown', e=>{
     }
     else if(e.key==='Enter'){
         e.preventDefault();
-        const termoDigitado = normalize(e.target.value);
-        const exactMatchIndex = filtered.findIndex(p => normalize(p.codigo) === termoDigitado);
-        if (exactMatchIndex !== -1) {
-            currentIndex = exactMatchIndex;
-        }
 
+        // Utiliza diretamente o currentIndex atual (onde está o destaque em azul claro)
         if (currentIndex >= 0 && currentIndex < filtered.length) {
             const activeLi = document.querySelectorAll('#resultado li')[currentIndex];
             if(activeLi) {

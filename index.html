@@ -226,7 +226,7 @@ button { padding:5px 10px; cursor:pointer; }
   <td data-col-group="shopee"></td>
   <td data-col-group="shopee"></td>
   <td class="editable-market" data-col="imposto-mercadoLivre" data-col-group="ml"></td>
-  <td class="editable-market" data-col="imposto-mercadoLivreFlex" data-col-group="ml"></td>
+  <td class="editable-market" data-col="imposto-mercadoLivreFlex" data-col="imposto-mercadoLivreFlex" data-col-group="ml"></td>
   <td data-col-group="shein"></td>
   <td class="editable-market" data-col="imposto-magalu" data-col-group="magalu"></td>
   <td class="editable-market" data-col="imposto-direto" data-col-group="direto"></td>
@@ -422,6 +422,16 @@ function atualizarTabela(){
 
     const impostoRow = document.querySelector('#tabelaMarketplace tr[data-key="imposto"]');
     impostoRow.querySelectorAll('td:not(:first-child)').forEach((td, i) => {
+        const thElement = document.querySelectorAll('#tabelaMarketplace th')[i+1];
+        const colName = thElement ? thElement.textContent.trim() : '';
+
+        if (colName.includes('Mercado Livre Flex')) {
+            if (!td.hasAttribute('data-user-edited') && !td.hasAttribute('data-user-imposto')) {
+                td.textContent = formatBR(0);
+                return;
+            }
+        }
+
         if (!td.hasAttribute('data-user-edited')) {
             const precoVendaCol = parseBR(precoVendaRow.children[i+1].dataset.userPreco || precoVendaRow.children[i+1].textContent.split(' ')[0]);
             td.textContent = formatBR(impostoPercentual * precoVendaCol);
@@ -454,7 +464,11 @@ function atualizarTabela(){
                     cell.removeAttribute('data-real-preco');
                 });
                 document.querySelectorAll('#tabelaMarketplace tr[data-key="imposto"] td').forEach(cell => {
-                    cell.removeAttribute('data-user-edited');
+                    const thEl = document.querySelectorAll('#tabelaMarketplace th')[Array.from(cell.parentElement.children).indexOf(cell)];
+                    const cName = thEl ? thEl.textContent.trim() : '';
+                    if (!cName.includes('Mercado Livre Flex')) {
+                        cell.removeAttribute('data-user-edited');
+                    }
                 });
 
                 atualizarTabela();
@@ -876,6 +890,16 @@ function atualizarMarketplace(totalCusto, totalPeso){
 
     const impostoRow = tbody.querySelector('tr[data-key="imposto"]');
     impostoRow.querySelectorAll('td:not(:first-child)').forEach((td,i)=>{
+        const thElement = document.querySelectorAll('#tabelaMarketplace th')[i+1];
+        const colName = thElement ? thElement.textContent.trim() : '';
+
+        if (colName.includes('Mercado Livre Flex')) {
+            if (!td.hasAttribute('data-user-edited') && !td.hasAttribute('data-user-imposto')) {
+                td.textContent = formatBR(0);
+                return;
+            }
+        }
+
         if (!td.hasAttribute('data-user-edited')) {
             const preco = parseBR(precoVendaRow.children[i+1].dataset.userPreco || precoVendaRow.children[i+1].textContent.split(' ')[0]);
             td.textContent = formatBR(impostoPercentual * preco);
@@ -983,7 +1007,13 @@ function selectProduto(index,quantidade){
     else selecionados.push({...p, quantidade});
     
     document.querySelectorAll('#tabelaMarketplace tr[data-key="precoVenda"] td, #tabelaMarketplace tr[data-key="imposto"] td').forEach(td => {
-        td.removeAttribute('data-user-edited');
+        const thEl = document.querySelectorAll('#tabelaMarketplace th')[Array.from(td.parentElement.children).indexOf(td)];
+        const cName = thEl ? thEl.textContent.trim() : '';
+        if (cName.includes('Mercado Livre Flex')) {
+            td.removeAttribute('data-user-imposto');
+        } else {
+            td.removeAttribute('data-user-edited');
+        }
         td.removeAttribute('data-user-preco');
         td.removeAttribute('data-real-preco');
     });
@@ -1034,7 +1064,13 @@ document.getElementById('btnCriarKit').addEventListener('click', () => {
     selecionados = [produtoKit];
 
     document.querySelectorAll('#tabelaMarketplace tr[data-key="precoVenda"] td, #tabelaMarketplace tr[data-key="imposto"] td').forEach(td => {
-        td.removeAttribute('data-user-edited');
+        const thEl = document.querySelectorAll('#tabelaMarketplace th')[Array.from(td.parentElement.children).indexOf(td)];
+        const cName = thEl ? thEl.textContent.trim() : '';
+        if (cName.includes('Mercado Livre Flex')) {
+            td.removeAttribute('data-user-imposto');
+        } else {
+            td.removeAttribute('data-user-edited');
+        }
         td.removeAttribute('data-user-preco');
         td.removeAttribute('data-real-preco');
     });
@@ -1046,7 +1082,13 @@ document.getElementById('limparBtn').addEventListener('click', () => {
     selecionados = [];
     
     document.querySelectorAll('#tabelaMarketplace tr[data-key="precoVenda"] td, #tabelaMarketplace tr[data-key="imposto"] td').forEach(td => {
-        td.removeAttribute('data-user-edited');
+        const thEl = document.querySelectorAll('#tabelaMarketplace th')[Array.from(td.parentElement.children).indexOf(td)];
+        const cName = thEl ? thEl.textContent.trim() : '';
+        if (cName.includes('Mercado Livre Flex')) {
+            td.removeAttribute('data-user-imposto');
+        } else {
+            td.removeAttribute('data-user-edited');
+        }
         td.removeAttribute('data-user-preco');
         td.removeAttribute('data-real-preco');
     });
@@ -1083,11 +1125,27 @@ document.querySelectorAll('td.editable-market').forEach(td => {
     td.addEventListener('click', () => {
         if (td.querySelector('input')) return;
         
-        const valorAtual = td.dataset.userPreco || td.dataset.realPreco || td.textContent.split(' ')[0];
+        const thEl = document.querySelectorAll('#tabelaMarketplace th')[Array.from(td.parentElement.children).indexOf(td)];
+        const colHeader = thEl ? thEl.textContent.trim() : '';
+        const isMLFlexImposto = (td.parentElement.dataset.key === 'imposto' && colHeader.includes('Mercado Livre Flex'));
+
+        const precoVendaRow = document.querySelector('#tabelaMarketplace tr[data-key="precoVenda"]');
+        const colIndex = Array.from(td.parentElement.children).indexOf(td);
+        const precoVendaCol = parseBR(precoVendaRow.children[colIndex].dataset.userPreco || precoVendaRow.children[colIndex].textContent.split(' ')[0]);
+
         const input = document.createElement('input');
         input.type = 'text';
         input.className = 'inline-input';
-        input.value = formatBR(parseBR(valorAtual));
+        
+        if (isMLFlexImposto && !td.hasAttribute('data-user-imposto')) {
+            // Inicia preenchendo o input com o valor já calculado do imposto baseado no percentual
+            const valorCalculadoInicial = impostoPercentual * precoVendaCol;
+            input.value = formatBR(valorCalculadoInicial);
+        } else {
+            const valorAtual = td.dataset.userPreco || td.dataset.realPreco || td.textContent.split(' ')[0];
+            input.value = formatBR(parseBR(valorAtual));
+        }
+
         td.innerHTML = '';
         td.appendChild(input);
         input.focus();
@@ -1105,6 +1163,10 @@ document.querySelectorAll('td.editable-market').forEach(td => {
 
             const col = td.dataset.col;
             const tr = td.parentElement;
+
+            if (isMLFlexImposto) {
+                td.setAttribute('data-user-imposto', 'true');
+            }
 
             if (tr.dataset.key === 'taxaFixa' && col === 'taxaFixa-magalu') {
                 td.dataset.userTaxafixa = val.toFixed(2);
@@ -1193,7 +1255,6 @@ document.getElementById('busca').addEventListener('keydown', e=>{
     else if(e.key==='Enter'){
         e.preventDefault();
 
-        // Utiliza diretamente o currentIndex atual (onde está o destaque em azul claro)
         if (currentIndex >= 0 && currentIndex < filtered.length) {
             const activeLi = document.querySelectorAll('#resultado li')[currentIndex];
             if(activeLi) {
